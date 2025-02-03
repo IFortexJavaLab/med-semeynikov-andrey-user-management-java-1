@@ -2,6 +2,8 @@ package com.ifortex.internship.usermanagement.controller;
 
 import com.ifortex.internship.usermanagement.service.UserService;
 import com.ifortex.internship.usermanagementapi.dto.request.UpdateUserDto;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -14,13 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/account")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "BearerAuth")
+@Tag(name = "User Account", description = "User account management")
 public class UserController {
 
   private final UserService userService;
-  
+
   @PatchMapping()
-  public ResponseEntity<?> updateUserByAuthentication(@RequestBody UpdateUserDto updateUserDto) {
-    var updatedUser = userService.updateUserByAuthentication(updateUserDto);
+  public ResponseEntity<?> updateUser(@RequestBody UpdateUserDto updateUserDto) {
+    var updatedUser = userService.updateUser(updateUserDto);
     return ResponseEntity.ok().body(updatedUser);
   }
   

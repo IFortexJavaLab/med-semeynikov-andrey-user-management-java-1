@@ -33,7 +33,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
           throws ServletException, IOException {
     try {
 
-      log.debug("AuthTokenFilter started");
+      log.debug("AuthTokenFilter started for uri: {}", request.getRequestURI());
 
       String jwt = parseJwt(request);
 

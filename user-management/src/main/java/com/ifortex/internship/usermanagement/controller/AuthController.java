@@ -3,6 +3,8 @@ package com.ifortex.internship.usermanagement.controller;
 import com.ifortex.internship.usermanagement.service.UserService;
 import com.ifortex.internship.usermanagementapi.dto.request.AuthUserForUserManagementDto;
 import com.ifortex.internship.usermanagementapi.dto.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("api/v1/user-management/auth")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "BearerAuth")
+@Tag(name = "Auth service")
 public class AuthController {
 
   private final UserService userService;

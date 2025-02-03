@@ -41,6 +41,10 @@ public class SecurityConfig {
                     .hasAnyRole("ADMIN", "SUPER_ADMIN")
                     .requestMatchers("/api/v1/account/**")
                     .authenticated()
+                    .requestMatchers("/api/v1/user-management/auth/**")
+                    .permitAll()
+                    .requestMatchers("/swagger-ui/**", "/v3/api-docs*/**")
+                    .permitAll()
                     .anyRequest()
                     .authenticated())
         .exceptionHandling(c -> c.authenticationEntryPoint(unauthorizedHandler));

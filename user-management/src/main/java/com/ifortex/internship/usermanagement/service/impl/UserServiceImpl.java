@@ -59,44 +59,9 @@ public class UserServiceImpl implements UserService {
     return usersForListView;
   }
 
-  private List<UserListViewDto> mergeUsers(
-      List<AuthUserDto> usersFromAuthService, List<User> usersFromUserManagement) {
+  public UpdateUserDto updateUser(UpdateUserDto updateUserDto) {
 
-    Map<String, User> userMap =
-        usersFromUserManagement.stream().collect(Collectors.toMap(User::getUserId, user -> user));
-
-    List<UserListViewDto> users =
-        usersFromAuthService.stream()
-            .map(
-                userFromAuth -> {
-                  User userFromUserManagement = userMap.get(userFromAuth.getUserId());
-                  if (userFromUserManagement != null) {
-                    return UserListViewDto.builder()
-                        .email(userFromAuth.getEmail())
-                        .firstName(userFromUserManagement.getFirstName())
-                        .lastName(userFromUserManagement.getLastName())
-                        .roles(userFromAuth.getRoles())
-                        .build();
-                  }
-                  return null;
-                })
-            .filter(Objects::nonNull)
-            .toList();
-
-    return users;
-  }
-
-  public UpdateUserDto updateUserByAuthentication(UpdateUserDto updateUserDto) {
-
-    Object principle = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-    if ("anonymousUser".equals(principle.toString())) {
-      log.debug("Attempt to get user details by anonymous or unauthenticated user.");
-      throw new AuthorizationException("User is not authenticated. Please log in.");
-    }
-
-    UserDetailsImpl userDetails = (UserDetailsImpl) principle;
-    String userId = userDetails.getUserId();
+    String userId = getUserIdFromAuthentication();
 
     log.debug("Updating user with id: {}", userId);
     User user =
@@ -121,7 +86,7 @@ public class UserServiceImpl implements UserService {
     log.debug("User saved to db");
 
     try {
-      objectMapper.updateValue(/*updateUserResponse*/ updateUserDto, user);
+      objectMapper.updateValue(updateUserDto, user);
     } catch (JsonMappingException e) {
       log.error(
           "Error during mapping from User to UpdateUserDto. Original message: {}", e.getMessage());
@@ -129,7 +94,7 @@ public class UserServiceImpl implements UserService {
     }
     log.debug("User: {} updated successfully", userId);
 
-    return /*updateUserResponse*/ updateUserDto;
+    return updateUserDto;
   }
 
   public SuccessResponse saveUserFromAuthService(AuthUserForUserManagementDto authUserDto) {
@@ -150,7 +115,7 @@ public class UserServiceImpl implements UserService {
         String.format("User with id: %s saved successfully", authUserDto.getUserId()));
   }
 
-  public FullUserDto getFullUserForAdmin(String userId) {
+  public FullUserDto getFullUserData(String userId) {
 
     var userFromUserManagement = findUserByUserId(userId);
 
@@ -180,7 +145,72 @@ public class UserServiceImpl implements UserService {
     return fullUserDto;
   }
 
-  public User findUserByUserId(String userId) {
+  public String getUserEmailFromAuthentication() {
+    Object principle = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    if ("anonymousUser".equals(principle.toString())) {
+      log.debug("Attempt to get user details by anonymous or unauthenticated user.");
+      throw new AuthorizationException("User is not authenticated. Please log in.");
+    }
+    String userEmail = ((UserDetailsImpl) principle).getEmail();
+    return userEmail;
+  }
+
+  public String getUserIdFromAuthentication() {
+    Object principle = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    if ("anonymousUser".equals(principle.toString())) {
+      log.debug("Attempt to get user details by anonymous or unauthenticated user.");
+      throw new AuthorizationException("User is not authenticated. Please log in.");
+    }
+    String userId = ((UserDetailsImpl) principle).getUserId();
+    return userId;
+  }
+
+  /**
+   * Merges user data from the authentication service and user management service.
+   *
+   * <p>Combines user details by matching user IDs from both sources. The resulting list contains
+   * user information with email and roles from the authentication service and personal details
+   * (first name, last name) from the user management service.
+   *
+   * @param usersFromAuthService List of users retrieved from the authentication service.
+   * @param usersFromUserManagement List of users retrieved from the user management service.
+   * @return A list of {@link UserListViewDto} containing merged user details.
+   */
+  private List<UserListViewDto> mergeUsers(
+      List<AuthUserDto> usersFromAuthService, List<User> usersFromUserManagement) {
+
+    Map<String, User> userMap =
+        usersFromUserManagement.stream().collect(Collectors.toMap(User::getUserId, user -> user));
+
+    List<UserListViewDto> users =
+        usersFromAuthService.stream()
+            .map(
+                userFromAuth -> {
+                  User userFromUserManagement = userMap.get(userFromAuth.getUserId());
+                  if (userFromUserManagement != null) {
+                    return UserListViewDto.builder()
+                        .email(userFromAuth.getEmail())
+                        .firstName(userFromUserManagement.getFirstName())
+                        .lastName(userFromUserManagement.getLastName())
+                        .roles(userFromAuth.getRoles())
+                        .build();
+                  }
+                  return null;
+                })
+            .filter(Objects::nonNull)
+            .toList();
+
+    return users;
+  }
+
+  /**
+   * Retrieves a user entity by their unique user ID.
+   *
+   * @param userId The ID of the user to retrieve.
+   * @return The {@link User} entity if found.
+   * @throws EntityNotFoundException if the user is not found in the database.
+   */
+  private User findUserByUserId(String userId) {
     return userRepository
         .findByUserId(userId)
         .orElseThrow(
