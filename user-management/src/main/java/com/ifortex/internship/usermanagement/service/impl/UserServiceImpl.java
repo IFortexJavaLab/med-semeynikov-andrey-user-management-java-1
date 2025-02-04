@@ -136,7 +136,6 @@ public class UserServiceImpl implements UserService {
                   return new EntityNotFoundException(String.format("User: %s not found", userId));
                 });
 
-    // todo оставить два try catch или объединить?
     try {
       objectMapper.updateValue(user, updateUserDto);
     } catch (JsonMappingException e) {
@@ -204,7 +203,6 @@ public class UserServiceImpl implements UserService {
       throw new InternalServerException("Something went wrong, try later");
     }
 
-    // todo do i need this assert?
     assert userFromAuthService != null;
 
     FullUserDto fullUserDto =
