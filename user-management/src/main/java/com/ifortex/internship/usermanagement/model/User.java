@@ -36,11 +36,6 @@ public class User {
   @Column(nullable = false)
   String userId;
 
-/*  @NotBlank(message = "Email is required")
-  @Email(message = "Invalid email format")
-  @Column(nullable = false)
-  private String email;*/
-
   @Size(max = 100, message = "First name cannot exceed 100 characters")
   private String firstName;
 

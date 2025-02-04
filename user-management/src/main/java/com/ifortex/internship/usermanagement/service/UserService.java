@@ -5,15 +5,24 @@ import com.ifortex.internship.usermanagement.exception.usermanagement.EntityNotF
 import com.ifortex.internship.usermanagement.exception.usermanagement.InternalServerException;
 import com.ifortex.internship.usermanagementapi.dto.request.AuthUserForUserManagementDto;
 import com.ifortex.internship.usermanagementapi.dto.request.UpdateUserDto;
+import com.ifortex.internship.usermanagementapi.dto.request.UserSearchRequest;
 import com.ifortex.internship.usermanagementapi.dto.response.FullUserDto;
 import com.ifortex.internship.usermanagementapi.dto.response.SuccessResponse;
 import com.ifortex.internship.usermanagementapi.dto.response.UserListViewDto;
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface UserService {
 
-  // todo add javadoc
-  List<UserListViewDto> getAllUsers();
+  /**
+   * Searches for users based on the provided filters and pagination parameters.
+   *
+   * @param request The {@link UserSearchRequest} containing search filters like name, phone, roles,
+   *     status, and email.
+   * @param page The page number for pagination (zero-based).
+   * @param size The number of records per page.
+   * @return A paginated list of UserListViewDto containing merged user information.
+   */
+  Page<UserListViewDto> searchUsers(UserSearchRequest request, int page, int size);
 
   /**
    * Saves a new user based on data received from the authentication service.
@@ -34,7 +43,8 @@ public interface UserService {
   UpdateUserDto updateUser(UpdateUserDto updateUserDto);
 
   /**
-   * Retrieves full user data by aggregating information from the user management and authentication services.
+   * Retrieves full user data by aggregating information from the user management and authentication
+   * services.
    *
    * @param userId The ID of the user whose data is being retrieved.
    * @return A {@link FullUserDto} containing the merged user details.
@@ -57,4 +67,18 @@ public interface UserService {
    * @throws AuthorizationException if the user is not authenticated or is anonymous
    */
   String getUserIdFromAuthentication();
+
+  /**
+   * Updates user information by an admin based on the provided user ID and update data.
+   *
+   * @param userId The unique identifier of the user to be updated. Cannot be {@code null}.
+   * @param updateUserDto The {@link UpdateUserDto} containing the updated user information. Cannot
+   *     be {@code null}.
+   * @return The updated UpdateUserDto reflecting the changes made.
+   * @throws EntityNotFoundException If the user with the provided {@code userId} is not found in
+   *     the database.
+   * @throws InternalServerException If an error occurs during JSON mapping or while updating the
+   *     2FA status in the auth service.
+   */
+  UpdateUserDto updateUserByAdmin(String userId, UpdateUserDto updateUserDto);
 }

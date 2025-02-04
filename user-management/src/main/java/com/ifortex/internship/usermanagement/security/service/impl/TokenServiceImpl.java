@@ -26,9 +26,6 @@ public class TokenServiceImpl implements TokenService {
   @Value("${app.jwtSecret}")
   private String jwtSecret;
 
-  @Value("${app.jwtExpirationMs}")
-  private int jwtExpirationMs;
-
   public boolean isValid(String authToken) {
 
     try {

@@ -2,6 +2,7 @@ package com.ifortex.internship.usermanagement.controller;
 
 import com.ifortex.internship.usermanagement.service.UserService;
 import com.ifortex.internship.usermanagementapi.dto.request.UpdateUserDto;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +23,13 @@ public class UserController {
 
   private final UserService userService;
 
+  @Operation(summary = "Update user", description = "Allows updating user information.")
   @PatchMapping()
   public ResponseEntity<?> updateUser(@RequestBody UpdateUserDto updateUserDto) {
-    var updatedUser = userService.updateUser(updateUserDto);
+    UpdateUserDto updatedUser = userService.updateUser(updateUserDto);
     return ResponseEntity.ok().body(updatedUser);
   }
-  
+
   //todo add endpoint getUserDetails for user
 
 }

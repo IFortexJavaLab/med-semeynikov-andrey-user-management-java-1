@@ -31,4 +31,6 @@ public class UpdateUserDto {
   @Past(message = "Date of birth must be in the past")
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
   private Optional<LocalDate> dateOfBirth;
+
+  private Boolean isTwoFactorEnabled;
 }

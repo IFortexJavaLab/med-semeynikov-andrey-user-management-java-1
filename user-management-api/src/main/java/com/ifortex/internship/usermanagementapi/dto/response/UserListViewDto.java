@@ -10,6 +10,7 @@ import java.util.List;
 @Setter
 @Builder
 public class UserListViewDto {
+    private String userId;
     private String email;
     private String firstName;
     private String lastName;
