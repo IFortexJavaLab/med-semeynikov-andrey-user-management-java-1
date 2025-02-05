@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
     List<AuthUserDto> authUsers;
     try {
       authUsers =
-          authServiceUserApi.getUserDetails(
+          authServiceUserApi.searchUsers(
               userIds, request.getRoles(), request.getStatus(), request.getEmail());
     } catch (CustomFeignException e) {
       log.debug("Error occurred during call to auth service");
@@ -149,7 +149,7 @@ public class UserServiceImpl implements UserService {
       TwoFactorAuthRequest twoFactorAuthRequest =
           new TwoFactorAuthRequest(updateUserDto.getIsTwoFactorEnabled());
       try {
-        authServiceUserApi.changeTwoFactorAuth(twoFactorAuthRequest);
+        authServiceUserApi.changeTwoFactorAuthByAdmin(userId, twoFactorAuthRequest);
       } catch (CustomFeignException e) {
         log.debug("Error occurred during call to auth service");
         throw new InternalServerException("Something went wrong, try later");

@@ -34,7 +34,7 @@ public class AdminController {
   @Operation(
       summary = "Search users",
       description = "Allows admins to search users with filters and pagination.")
-  @PostMapping
+  @PostMapping("/search")
   public ResponseEntity<?> searchUsers(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "20") int size,

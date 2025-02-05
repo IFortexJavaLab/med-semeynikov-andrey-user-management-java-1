@@ -16,9 +16,9 @@ public class SwaggerConfig {
     return new OpenAPI()
         .info(
             new Info()
-                .title("Auth Service API")
+                .title("User Management Service API")
                 .version("1.0")
-                .description("API documentation for authentication service"))
+                .description("API documentation for user management service"))
         .addSecurityItem(new SecurityRequirement().addList("BearerAuth"))
         .components(
             new Components()
