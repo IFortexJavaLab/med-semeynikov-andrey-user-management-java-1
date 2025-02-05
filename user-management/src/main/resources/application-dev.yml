@@ -1,0 +1,17 @@
+logging:
+  level:
+    com:
+      ifortex:
+        internship:
+          usermanagement: DEBUG
+    org:
+      hibernate:
+        SQL: INFO
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+      springframework:
+        cloud:
+          netflix:
+            feign: DEBUG
