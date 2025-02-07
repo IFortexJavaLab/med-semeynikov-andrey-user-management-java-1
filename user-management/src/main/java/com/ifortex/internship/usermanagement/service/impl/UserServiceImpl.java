@@ -19,11 +19,6 @@ import com.ifortex.internship.usermanagementapi.dto.request.UserSearchRequest;
 import com.ifortex.internship.usermanagementapi.dto.response.FullUserDto;
 import com.ifortex.internship.usermanagementapi.dto.response.SuccessResponse;
 import com.ifortex.internship.usermanagementapi.dto.response.UserListViewDto;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,6 +28,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -46,7 +47,7 @@ public class UserServiceImpl implements UserService {
     Pageable pageable = PageRequest.of(page, size);
 
     Page<User> userManagementUsers =
-        userRepository.findByFilters(request.getName(), request.getPhone(), pageable);
+        userRepository.findByFilters(request.getFirstName(), request.getLastName(), request.getPhone(), pageable);
     log.debug(
         "Fetched {} users from User Management Service", userManagementUsers.getTotalElements());
 
