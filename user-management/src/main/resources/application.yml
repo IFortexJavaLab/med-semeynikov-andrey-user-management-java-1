@@ -23,6 +23,17 @@ spring:
   profiles:
     active: dev
 
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    url: /openapi.yaml
+    config-url: /v3/api-docs/swagger-config
+    operationsSorter: method
+    tagsSorter: alpha
+
 server:
   port: 8082
 
