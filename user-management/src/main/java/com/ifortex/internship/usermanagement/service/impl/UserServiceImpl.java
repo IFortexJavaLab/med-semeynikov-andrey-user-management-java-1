@@ -14,11 +14,17 @@ import com.ifortex.internship.usermanagement.model.UserDetailsImpl;
 import com.ifortex.internship.usermanagement.repository.UserRepository;
 import com.ifortex.internship.usermanagement.service.UserService;
 import com.ifortex.internship.usermanagementapi.dto.request.AuthUserForUserManagementDto;
+import com.ifortex.internship.usermanagementapi.dto.request.DeleteUserRequest;
 import com.ifortex.internship.usermanagementapi.dto.request.UpdateUserDto;
 import com.ifortex.internship.usermanagementapi.dto.request.UserSearchRequest;
 import com.ifortex.internship.usermanagementapi.dto.response.FullUserDto;
-import com.ifortex.internship.usermanagementapi.dto.response.SuccessResponse;
 import com.ifortex.internship.usermanagementapi.dto.response.UserListViewDto;
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -28,12 +34,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -47,7 +47,8 @@ public class UserServiceImpl implements UserService {
     Pageable pageable = PageRequest.of(page, size);
 
     Page<User> userManagementUsers =
-        userRepository.findByFilters(request.getFirstName(), request.getLastName(), request.getPhone(), pageable);
+        userRepository.findByFilters(
+            request.getFirstName(), request.getLastName(), request.getPhone(), pageable);
     log.debug(
         "Fetched {} users from User Management Service", userManagementUsers.getTotalElements());
 
@@ -84,8 +85,9 @@ public class UserServiceImpl implements UserService {
             .findByUserId(userId)
             .orElseThrow(
                 () -> {
-                  log.debug("User: {} not found", userId);
-                  return new EntityNotFoundException(String.format("User: %s not found", userId));
+                  log.debug("User with ID: {} not found", userId);
+                  return new EntityNotFoundException(
+                      String.format("User with ID: %s not found", userId));
                 });
 
     try {
@@ -108,7 +110,7 @@ public class UserServiceImpl implements UserService {
       }
     }
 
-    user.setUpdatedAt(LocalDateTime.now());
+    user.setUpdatedAt(LocalDateTime.now(Clock.systemUTC()));
     userRepository.save(user);
     log.debug("User saved to db");
 
@@ -133,8 +135,9 @@ public class UserServiceImpl implements UserService {
             .findByUserId(userId)
             .orElseThrow(
                 () -> {
-                  log.debug("User: {} not found", userId);
-                  return new EntityNotFoundException(String.format("User: %s not found", userId));
+                  log.debug("User with ID: {} not found", userId);
+                  return new EntityNotFoundException(
+                      String.format("User with ID: %s not found", userId));
                 });
 
     try {
@@ -157,8 +160,8 @@ public class UserServiceImpl implements UserService {
       }
     }
 
-    user.setUpdatedAt(LocalDateTime.now());
-    userRepository.save(user);
+    user.setUpdatedAt(LocalDateTime.now(Clock.systemUTC()));
+    user = userRepository.save(user);
     log.debug("User saved to db");
 
     try {
@@ -174,25 +177,46 @@ public class UserServiceImpl implements UserService {
   }
 
   @Transactional
-  public SuccessResponse saveUserFromAuthService(AuthUserForUserManagementDto authUserDto) {
+  public void deleteUser(DeleteUserRequest request) {
+
+    String userId = request.getUserId();
+
+    log.debug("Deleting user with ID: {}", userId);
+
+    var user = findUserByUserId(userId);
+    userRepository.delete(user);
+
+    log.debug("User with ID: {} deleted successfully", userId);
+  }
+
+  @Transactional
+  public void saveUserFromAuthService(AuthUserForUserManagementDto authUserDto) {
 
     String userId = authUserDto.getUserId();
-    log.debug("Saving user with id: {} to the db", userId);
+    log.debug("Saving user from auth service with id: {} to the db", userId);
 
-    User user =
-        User.builder()
-            .userId(userId)
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
-            .build();
+    var userOpt = userRepository.findByUserId(userId);
+    User user;
+    if (userOpt.isEmpty()) {
+      user =
+          User.builder()
+              .userId(userId)
+              .createdAt(LocalDateTime.now(Clock.systemUTC()))
+              .updatedAt(LocalDateTime.now(Clock.systemUTC()))
+              .build();
+    } else {
+      user = userOpt.get();
+      user.setSoftDeleted(authUserDto.isSoftDeleted());
+      user.setUpdatedAt(LocalDateTime.now(Clock.systemUTC()));
+    }
     userRepository.save(user);
 
     log.debug("User with id: {} saved to the db successfully", userId);
-    return new SuccessResponse(
-        String.format("User with id: %s saved successfully", authUserDto.getUserId()));
   }
 
   public FullUserDto getFullUserData(String userId) {
+
+    log.debug("Getting user profile for user with ID: {}", userId);
 
     var userFromUserManagement = findUserByUserId(userId);
 
@@ -216,8 +240,7 @@ public class UserServiceImpl implements UserService {
             .phoneNumber(userFromUserManagement.getPhoneNumber())
             .roles(userFromAuthService.getRoles())
             .isTwoFactorEnabled(userFromAuthService.isTwoFactorEnabled())
-            .isSoftDeleted(userFromAuthService.isSoftDeleted())
-            .status(userFromAuthService.getStatus())
+            .isBlocked(userFromAuthService.isBlocked())
             .build();
     return fullUserDto;
   }
@@ -293,9 +316,9 @@ public class UserServiceImpl implements UserService {
         .findByUserId(userId)
         .orElseThrow(
             () -> {
-              log.debug("User with id: {} not found", userId);
+              log.debug("User with ID: {} not found", userId);
               return new EntityNotFoundException(
-                  String.format("User with id: %s not found", userId));
+                  String.format("User with ID: %s not found", userId));
             });
   }
 }

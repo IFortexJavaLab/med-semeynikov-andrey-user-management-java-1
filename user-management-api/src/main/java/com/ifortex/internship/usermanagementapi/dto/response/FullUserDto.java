@@ -18,6 +18,5 @@ public class FullUserDto {
   private LocalDate dateOfBirth;
   private boolean isTwoFactorEnabled;
   private List<String> roles;
-  private String status;
-  private boolean isSoftDeleted;
+  private boolean isBlocked;
 }

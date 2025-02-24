@@ -9,11 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthUserForUserManagementDto {
+public class DeleteUserRequest {
   private String userId;
-  private boolean isSoftDeleted;
-
-  public AuthUserForUserManagementDto(String userId) {
-    this.userId = userId;
-  }
 }

@@ -4,10 +4,10 @@ import com.ifortex.internship.usermanagement.exception.auth.AuthorizationExcepti
 import com.ifortex.internship.usermanagement.exception.usermanagement.EntityNotFoundException;
 import com.ifortex.internship.usermanagement.exception.usermanagement.InternalServerException;
 import com.ifortex.internship.usermanagementapi.dto.request.AuthUserForUserManagementDto;
+import com.ifortex.internship.usermanagementapi.dto.request.DeleteUserRequest;
 import com.ifortex.internship.usermanagementapi.dto.request.UpdateUserDto;
 import com.ifortex.internship.usermanagementapi.dto.request.UserSearchRequest;
 import com.ifortex.internship.usermanagementapi.dto.response.FullUserDto;
-import com.ifortex.internship.usermanagementapi.dto.response.SuccessResponse;
 import com.ifortex.internship.usermanagementapi.dto.response.UserListViewDto;
 import org.springframework.data.domain.Page;
 
@@ -28,9 +28,8 @@ public interface UserService {
    * Saves a new user based on data received from the authentication service.
    *
    * @param authUserDto DTO containing user details from the authentication service.
-   * @return A success response indicating that the user has been saved.
    */
-  SuccessResponse saveUserFromAuthService(AuthUserForUserManagementDto authUserDto);
+  void saveUserFromAuthService(AuthUserForUserManagementDto authUserDto);
 
   /**
    * Updates the current authenticated user's details.
@@ -81,4 +80,14 @@ public interface UserService {
    *     2FA status in the auth service.
    */
   UpdateUserDto updateUserByAdmin(String userId, UpdateUserDto updateUserDto);
+
+  /**
+   * Deletes a user from the database based on the provided request. This method retrieves the user
+   * by their ID and performs a hard deletion from the database. No external service calls are made
+   * in this operation.
+   *
+   * @param request the request containing the user ID to be deleted.
+   * @throws EntityNotFoundException if the user with the specified ID is not found.
+   */
+  void deleteUser(DeleteUserRequest request);
 }

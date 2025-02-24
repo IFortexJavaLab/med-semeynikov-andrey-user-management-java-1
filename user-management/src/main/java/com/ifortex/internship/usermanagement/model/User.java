@@ -18,8 +18,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
+@SQLRestriction("is_soft_deleted = false")
 @Table(name = "users")
 @Getter
 @Setter
@@ -54,4 +56,7 @@ public class User {
 
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
+
+  @Column(nullable = false)
+  private boolean isSoftDeleted = false;
 }
