@@ -189,6 +189,25 @@ public class UserServiceImpl implements UserService {
     log.debug("User with ID: {} deleted successfully", userId);
   }
 
+  public FullUserDto getUserProfileByAuth() {
+
+    String userId = getUserIdFromAuthentication();
+    log.debug("Getting user profile for user with ID: {}", userId);
+
+    var userFromUserManagement = findUserByUserId(userId);
+
+    AuthUserDto userFromAuthService;
+    try {
+      userFromAuthService = authServiceUserApi.getUserByAuthentication().getBody();
+    } catch (CustomFeignException ex) {
+      log.debug("Error occurred during call to auth service");
+      throw new InternalServerException("Something went wrong, try later");
+    }
+
+    assert userFromAuthService != null;
+    return buildFullUserDto(userFromUserManagement, userFromAuthService);
+  }
+
   @Transactional
   public void saveUserFromAuthService(AuthUserForUserManagementDto authUserDto) {
 
@@ -214,7 +233,7 @@ public class UserServiceImpl implements UserService {
     log.debug("User with id: {} saved to the db successfully", userId);
   }
 
-  public FullUserDto getFullUserData(String userId) {
+  public FullUserDto getUserProfileById(String userId) {
 
     log.debug("Getting user profile for user with ID: {}", userId);
 
@@ -229,20 +248,7 @@ public class UserServiceImpl implements UserService {
     }
 
     assert userFromAuthService != null;
-
-    FullUserDto fullUserDto =
-        FullUserDto.builder()
-            .userId(userId)
-            .email(userFromAuthService.getEmail())
-            .firstName(userFromUserManagement.getFirstName())
-            .lastName(userFromUserManagement.getLastName())
-            .dateOfBirth(userFromUserManagement.getDateOfBirth())
-            .phoneNumber(userFromUserManagement.getPhoneNumber())
-            .roles(userFromAuthService.getRoles())
-            .isTwoFactorEnabled(userFromAuthService.isTwoFactorEnabled())
-            .isBlocked(userFromAuthService.isBlocked())
-            .build();
-    return fullUserDto;
+    return buildFullUserDto(userFromUserManagement, userFromAuthService);
   }
 
   public String getUserEmailFromAuthentication() {
@@ -320,5 +326,29 @@ public class UserServiceImpl implements UserService {
               return new EntityNotFoundException(
                   String.format("User with ID: %s not found", userId));
             });
+  }
+
+  /**
+   * Builds a {@link FullUserDto} by merging user data from the User Management service and the
+   * Authentication service.
+   *
+   * @param userFromUserManagement the user data retrieved from the User Management service.
+   * @param userFromAuthService the user data retrieved from the Authentication service.
+   * @return a {@link FullUserDto} containing the combined user profile information.
+   */
+  private FullUserDto buildFullUserDto(
+      User userFromUserManagement, AuthUserDto userFromAuthService) {
+
+    return FullUserDto.builder()
+        .userId(userFromAuthService.getUserId())
+        .email(userFromAuthService.getEmail())
+        .firstName(userFromUserManagement.getFirstName())
+        .lastName(userFromUserManagement.getLastName())
+        .dateOfBirth(userFromUserManagement.getDateOfBirth())
+        .phoneNumber(userFromUserManagement.getPhoneNumber())
+        .roles(userFromAuthService.getRoles())
+        .isTwoFactorEnabled(userFromAuthService.isTwoFactorEnabled())
+        .isBlocked(userFromAuthService.isBlocked())
+        .build();
   }
 }

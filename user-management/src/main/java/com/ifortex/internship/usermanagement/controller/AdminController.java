@@ -56,7 +56,7 @@ public class AdminController {
       description = "Retrieve detailed user information by user ID.")
   @GetMapping("/{userId}")
   public ResponseEntity<FullUserDto> getUserByUserId(@PathVariable String userId) {
-    var fullUser = userService.getFullUserData(userId);
+    var fullUser = userService.getUserProfileById(userId);
     return ResponseEntity.ok(fullUser);
   }
 }

@@ -49,7 +49,7 @@ public interface UserService {
    * @return A {@link FullUserDto} containing the merged user details.
    * @throws InternalServerException if an error occurs while calling the authentication service.
    */
-  FullUserDto getFullUserData(String userId);
+  FullUserDto getUserProfileById(String userId);
 
   /**
    * Retrieves the email of the currently authenticated user from the security context.
@@ -90,4 +90,14 @@ public interface UserService {
    * @throws EntityNotFoundException if the user with the specified ID is not found.
    */
   void deleteUser(DeleteUserRequest request);
+
+  /**
+   * Retrieves the authenticated user's profile by combining data from the User Management service
+   * and the Authentication service. If an error occurs while calling the Authentication service, an
+   * {@link InternalServerException} is thrown.
+   *
+   * @return a {@link FullUserDto} containing the user's complete profile information.
+   * @throws InternalServerException if there is an issue retrieving authentication data.
+   */
+  FullUserDto getUserProfileByAuth();
 }
