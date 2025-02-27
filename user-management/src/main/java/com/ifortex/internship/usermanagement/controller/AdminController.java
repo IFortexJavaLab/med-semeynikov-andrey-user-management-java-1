@@ -8,10 +8,13 @@ import com.ifortex.internship.usermanagementapi.dto.response.UserListViewDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Validated
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/accounting/users")
@@ -31,13 +35,18 @@ public class AdminController {
 
   private final UserService userService;
 
+
   @Operation(
       summary = "Search users",
       description = "Allows admins to search users with filters and pagination.")
   @PostMapping("/search")
   public ResponseEntity<?> searchUsers(
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "20") int size,
+          @RequestParam(defaultValue = "0") @Min(value = 0, message = "Page can't be a negative number")
+          int page,
+          @RequestParam(defaultValue = "20")
+          @Min(value = 1, message = "Size of the page can't be less than 1")
+          @Max(value = 100, message = "Size of the page can't be more than 100")
+          int size,
       @RequestBody UserSearchRequest request) {
     Page<UserListViewDto> result = userService.searchUsers(request, page, size);
     return ResponseEntity.ok(result.getContent());

@@ -10,14 +10,18 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
-import java.util.Collection;
-import java.util.List;
-import javax.crypto.SecretKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
+
+import javax.crypto.SecretKey;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -73,6 +77,27 @@ public class TokenServiceImpl implements TokenService {
             .getPayload()
             .get("userId", String.class);
   }
+
+    public Boolean hasActiveSubscriptionFromToken(String token) {
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("hasActiveSubscription", Boolean.class);
+    }
+
+    public Optional<LocalDateTime> getSubscriptionEndDateFromToken(String token) {
+        Long subscriptionEndDate =
+                Jwts.parser()
+                        .verifyWith(getSigningKey())
+                        .build()
+                        .parseSignedClaims(token)
+                        .getPayload()
+                        .get("subscriptionEndDate", Long.class);
+        return Optional.ofNullable(subscriptionEndDate)
+                .map(date -> LocalDateTime.ofEpochSecond(date, 0, ZoneOffset.UTC));
+    }
 
   public Collection<? extends GrantedAuthority> getAuthorityFromToken(String token) {
 

@@ -28,6 +28,7 @@ dependencies {
     implementation 'io.github.openfeign:feign-okhttp:13.5'
     implementation 'org.springframework.boot:spring-boot-starter-security:3.4.1'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.18.1'
+    implementation 'org.hibernate.validator:hibernate-validator:8.0.2.Final'
     compileOnly 'org.projectlombok:lombok:1.18.36'
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
 }

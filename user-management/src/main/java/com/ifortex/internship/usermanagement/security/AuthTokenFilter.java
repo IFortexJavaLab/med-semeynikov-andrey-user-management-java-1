@@ -8,8 +8,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Collection;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +16,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,7 +36,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
           throws ServletException, IOException {
     try {
 
-      log.debug("AuthTokenFilter started for uri: {}", request.getRequestURI());
+      log.debug("AuthTokenFilter started for: {}", request.getRequestURI());
 
       String jwt = parseJwt(request);
 
@@ -66,10 +69,19 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     String username = tokenService.getUsernameFromToken(jwt);
     String userId = tokenService.getUserIdFromToken(jwt);
+    Boolean hasActiveSubscription = tokenService.hasActiveSubscriptionFromToken(jwt);
+    Optional<LocalDateTime> subscriptionEndDate = tokenService.getSubscriptionEndDateFromToken(jwt);
     Collection<? extends GrantedAuthority> authorities = tokenService.getAuthorityFromToken(jwt);
 
     UserDetailsImpl userDetails =
-            UserDetailsImpl.builder().email(username).userId(userId).authorities(authorities).build();
+            UserDetailsImpl.builder()
+                    .email(username)
+                    .userId(userId)
+                    .hasActiveSubscription(hasActiveSubscription)
+                    .authorities(authorities)
+                    .build();
+
+    subscriptionEndDate.ifPresent(userDetails::setSubscriptionEndDate);
 
     UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(userDetails, jwt, authorities);

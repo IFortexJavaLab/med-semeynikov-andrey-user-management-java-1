@@ -17,7 +17,8 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
   List<User> findByUserIdIn(List<String> userIds);
 
-  default Page<User> findByFilters(String firstName, String lastName, String phone, Pageable pageable) {
+    default Page<User> findByFilters(
+            String firstName, String lastName, String phone, Pageable pageable) {
     Specification<User> spec = Specification.where(null);
 
     if (firstName != null && !firstName.isEmpty()) {

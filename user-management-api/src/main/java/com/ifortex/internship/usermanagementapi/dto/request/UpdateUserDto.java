@@ -1,16 +1,16 @@
 package com.ifortex.internship.usermanagementapi.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDate;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,18 +19,17 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UpdateUserDto {
 
-  @Size(max = 100, message = "First name cannot exceed 100 characters")
-  private Optional<String> firstName;
+  private Optional<@Size(max = 100, message = "First name cannot exceed 100 characters") String>
+          firstName;
 
-  @Size(max = 100, message = "Last name cannot exceed 100 characters")
-  private Optional<String> lastName;
+  private Optional<@Size(max = 100, message = "Last name cannot exceed 100 characters") String>
+          lastName;
 
-  @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Invalid phone number format")
-  private Optional<String> phoneNumber;
+  private Optional<
+          @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Invalid phone number format") String>
+          phoneNumber;
 
-  @Past(message = "Date of birth must be in the past")
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-  private Optional<LocalDate> dateOfBirth;
+  private Optional<@Past(message = "Date of birth must be in the past") LocalDate> dateOfBirth;
 
   private Boolean isTwoFactorEnabled;
 }

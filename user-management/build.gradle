@@ -37,6 +37,7 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4'
     implementation 'com.ifortex.internship:auth-service-api:0.0.1-SNAPSHOT'
     implementation 'com.ifortex.internship:user-management-api:0.0.1-SNAPSHOT'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.postgresql:postgresql'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
